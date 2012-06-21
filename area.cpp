@@ -1,34 +1,8 @@
 #include "area.h"
 #include <iostream>
 #include <fstream>
-#include <math.h>
-#include <QErrorMessage>
-
-
-bool compIntersections(Intersection int1, Intersection int2) {
-    return (int1.p.x < int2.p.x);
-}
-
-
-bool readIntFromFile(std::ifstream &fin, int &res) {
-    std::string tmp;
-
-    if (fin >> tmp) {
-        res = atoi(tmp.c_str());
-        if ((res <= 0) && (tmp.compare(std::string("0")))) {
-            QErrorMessage em;
-            em.showMessage("Incorrect file");
-            em.exec();
-            return false;
-        }
-       return true;
-     }
-    QErrorMessage em;
-    em.showMessage("Short file");
-    em.exec();
-    return false;
-}
-
+#include <set>
+#include <algorithm>
 
 bool compIntersections(Intersection* int1, Intersection* int2) {
     return (int1->p.x < int2->p.x);
@@ -89,6 +63,7 @@ struct event {
 
 
 void intersection(const std::vector<Segment*> &segments, std::vector<Intersection*> &intersections) {
+
     int n = segments.size();
     intersections.clear();
     for (int i = 0; i < n; i++) {
@@ -115,16 +90,15 @@ void intersection(const std::vector<Segment*> &segments, std::vector<Intersectio
     for (size_t i=0; i<e.size(); ++i) {
         int id = e[i].id;
         if (e[i].tp == +1) {
-            std::set<Segment*>::iterator nxt = s_segs.lower_bound (segments[id]), tih = s_segs.lower_bound (segments[id]);
-            tih = (tih==s_segs.begin()) ? s_segs.end(): tih--;
+            std::set<Segment*>::iterator nxt = s_segs.lower_bound (segments[id]);
             std::set<Segment*>::iterator nxt2 = s_segs.lower_bound (segments[id]);
-            std::set<Segment*>::iterator prv = (tih==s_segs.begin()) ? s_segs.end(): --tih;
-            if (nxt != s_segs.end() && intersect (segments[id], *nxt)){
-                Point2d p(find_point(segments[id], *nxt));
-                intersections.push_back(new Intersection(p, segments[id], *nxt));
+            std::set<Segment*>::iterator prv = (nxt==s_segs.begin()) ? s_segs.end(): --nxt2;
+            if (nxt != s_segs.end() && intersect (*nxt, segments[id])){
+                Point2d p(find_point(*nxt, segments[i]));
+                intersections.push_back(new Intersection(p, *nxt, segments[id]));
             }
             if (prv != s_segs.end() && intersect (*prv, segments[id])) {
-                Point2d p(find_point(*prv, segments[id]));
+                Point2d p(find_point(*prv, segments[i]));
                 intersections.push_back(new Intersection(p, *prv, segments[id]));
             }
             if (prv != s_segs.end() && nxt != s_segs.end() && intersect (*prv, *nxt)) {
@@ -135,26 +109,26 @@ void intersection(const std::vector<Segment*> &segments, std::vector<Intersectio
         }
         else {
             std::set<Segment*>::iterator tmp = where[id], tmp2 = where[id], tih = where[id];
-            std::set<Segment*>::iterator nxt = ++tmp;
+            std::set<Segment*>::iterator nxt = tmp++;
             std::set<Segment*>::iterator prv = (tmp2==s_segs.begin()) ? s_segs.end(): --tmp2;
-            if (nxt != s_segs.end() && prv != s_segs.end() && nxt != prv && intersect (*nxt, *prv)) {
+            if (nxt != s_segs.end() && prv != s_segs.end() && intersect (*nxt, *prv)) {
                 Point2d p(find_point(*nxt, *prv));
                 intersections.push_back(new Intersection(p, *prv, *nxt));
             }
-            if (nxt != s_segs.end() && tih != nxt && intersect (*tih, *nxt)) {
-                Point2d p(find_point(*tih, *nxt));
-                intersections.push_back(new Intersection(p, *tih, *nxt));
+            if (nxt != s_segs.end() && tih != nxt && intersect (*nxt, *tih)) {
+                Point2d p(find_point(*nxt, *tih));
+                intersections.push_back(new Intersection(p, *nxt, *tih));
             }
             if (prv != s_segs.end() && tih != prv && intersect (*prv, *tih)) {
-                Point2d p(find_point(*prv, *tih));
+                Point2d p(find_point(*nxt, *tih));
                 intersections.push_back(new Intersection(p, *prv, *tih));
             }
             s_segs.erase(where[id]);
         }
     }
+
     std::sort(intersections.begin(), intersections.end(), compIntersections);
 }
-
 
 Area::Area(QWidget *parent) :
     QWidget(parent) {
@@ -163,29 +137,19 @@ Area::Area(QWidget *parent) :
 
     forwardTimer = new QTimer(this);
     backTimer = new QTimer(this);
-    qforwardTimer = new QTimer(this);
-    qbackTimer = new QTimer(this);
     timerSpeed = 500;
-    qtimerSpeed = 10;
-    mCurLine = 0;
-    drawMode = false;
-    mCurDrawPoint = NULL;
-    mCurDrawingPoint = NULL;
 
     connect(forwardTimer, SIGNAL(timeout()), this, SLOT(forwardstep()));
     connect(backTimer, SIGNAL(timeout()), this, SLOT(backstep()));
-    connect(qbackTimer, SIGNAL(timeout()), this, SLOT(qbackstep()));
-    connect(qforwardTimer, SIGNAL(timeout()), this, SLOT(qforwardstep()));
 }
 
 void Area::forwardstep() {
 
+
     if (mCurIntersection < (int)(mIntersections.size() - 1)) {
         mCurIntersection++;
-        mCurLine = mIntersections[mCurIntersection].p.x;
     } else {
         forwardTimer->stop();
-        mCurLine = width();
     }
 
     update();
@@ -194,83 +158,33 @@ void Area::forwardstep() {
 void Area::backstep() {
     if (mCurIntersection > 0) {
         mCurIntersection--;
-        mCurLine = mIntersections[mCurIntersection].p.x;
     } else {
         backTimer->stop();
         mCurIntersection = -1;
-        mCurLine = 0;
-    }
-
-    update();
-}
-
-void Area::qforwardstep() {
-
-
-    if (mCurLine < width()) {
-        mCurLine++;
-        while ((mCurIntersection + 1 < mIntersections.size()) && (mIntersections[mCurIntersection + 1].p.x < mCurLine)) mCurIntersection++;
-    } else {
-        qforwardTimer->stop();
-    }
-
-    update();
-}
-
-void Area::qbackstep() {
-    if (mCurLine > 0) {
-        mCurLine--;
-        while ((mCurIntersection - 1 >= 0) && (mIntersections[mCurIntersection - 1].p.x > mCurLine)) mCurIntersection--;
-    } else {
-        qbackTimer->stop();
     }
     update();
 }
 
 void Area::backsteps() {
     forwardTimer->stop();
-    qforwardTimer->stop();
-    qbackTimer->stop();
     backTimer->start(timerSpeed);
 }
 
 
 void Area::forwardsteps() {
     backTimer->stop();
-    qforwardTimer->stop();
-    qbackTimer->stop();
     forwardTimer->start(timerSpeed);
-}
-
-void Area::qbacksteps() {
-    qforwardTimer->stop();
-    forwardTimer->stop();
-    backTimer->stop();
-    qbackTimer->start(qtimerSpeed);
-}
-
-
-void Area::qforwardsteps() {
-    qbackTimer->stop();
-    forwardTimer->stop();
-    backTimer->stop();
-    qforwardTimer->start(qtimerSpeed);
 }
 
 void Area::pause() {
     backTimer->stop();
     forwardTimer->stop();
-    qbackTimer->stop();
-    qforwardTimer->stop();
 }
 
 void Area::stop() {
 
     forwardTimer->stop();
     backTimer->stop();
-    qforwardTimer->stop();
-    qbackTimer->stop();
-    mCurLine = 0;
 
     mIntersections.clear();
     mSegments.clear();
@@ -283,56 +197,19 @@ void Area::finish() {
 
     forwardTimer->stop();
     backTimer->stop();
-    qforwardTimer->stop();
-    qbackTimer->stop();
 
     mCurIntersection = mIntersections.size() - 1;
-    mCurLine = width();
 
     update();
 }
 
-void Area::generetePoints(int numSegments, bool vert, bool multi, bool full) {
+void Area::generetePoints(int numSegments) {
 
     mSegments.clear();
 
-    if (full) {
-        int dx = width() / numSegments;
-        int dy = height() / numSegments;
-        int y = height();
-        int x = 0;
-
-        for (int i = 0; i < numSegments; i++) {
-            x += dx;
-            y -= dy;
-            mSegments.push_back(Segment(Point2d(0, y), Point2d(x, 0)));
-        }
-        numSegments = 0;
-     }
-
-    if (vert) {
-        int nvert = (numSegments / 20) + 1;
-        numSegments -= nvert;
-        for (int i = 0; i < nvert; i++) {
-            int x = rand()%width();
-            mSegments.push_back(Segment(Point2d(x, rand()%height()), Point2d(x, rand()%height())));
-        }
-    }
-
-    if (multi) {
-        int nmulti = std::min((numSegments / 20) + 3, numSegments);
-        numSegments -= nmulti;
-        int x = rand()%((int)(width()*0.8)) + width()*0.1;
-        int y = rand()%((int)(height()*0.8)) + height()*0.1;
-        for (int i = 0; i < nmulti; i++) {
-            int dx = rand()%(std::min(std::abs(width() - x), x));
-            int dy = rand()%(std::min(std::abs(height() - y), y));
-            mSegments.push_back(Segment(Point2d(x - dx, y - dy), Point2d(x + dx, y + dy)));
-        }
-    }
-
-    for (int i = 0; i < numSegments; i++) {;
-        mSegments.push_back(Segment(Point2d(rand()%width(), rand()%height()), Point2d(rand()%width(), rand()%height())));
+    for (int i = 0; i < numSegments; i++) {
+        Segment* s = new Segment(Point2d(rand()%width(), rand()%height()), Point2d(rand()%width(), rand()%height()));
+        mSegments.push_back(s);
     }
 
     mCurIntersection = -1;
@@ -350,44 +227,34 @@ void Area::load(QString file) {
 
     std::ifstream fin(file.toAscii().data());
 
-    if (!readIntFromFile(fin, numSegments)) {
-        mCurLine = 0;
-        mCurIntersection = -1;
-    }
+    fin >> numSegments;
 
     for (int i = 0; i < numSegments; i++) {
+        fin >> x1;
+        fin >> y1;
+        fin >> x2;
+        fin >> y2;
 
-        if (readIntFromFile(fin, x1) && readIntFromFile(fin, y1)
-                && readIntFromFile(fin, x2) && readIntFromFile(fin, y2)) {
+        if (x1 > maxX) maxX = x1;
+        if (y1 > maxY) maxY = y1;
+        if (x2 > maxX) maxX = x2;
+        if (y2 > maxY) maxY = y2;
 
-            if (x1 > maxX) maxX = x1;
-            if (y1 > maxY) maxY = y1;
-            if (x2 > maxX) maxX = x2;
-            if (y2 > maxY) maxY = y2;
-
-            mSegments.push_back(Segment(Point2d(x1, y1), Point2d(x2, y2)));
-
-        } else {
-
-            mCurLine = 0;
-            mCurIntersection = -1;
-            mSegments.clear();
-            return;
-        }
-
+        Segment* s = new Segment(Point2d(x1, y1), Point2d(x2, y2));
+        mSegments.push_back(s);
     }
 
     if (maxX > width()) {
         for (int i = 0; i < numSegments; i++) {
-            mSegments[i].p.x = mSegments[i].p.x / maxX * width();
-            mSegments[i].q.x = mSegments[i].q.x / maxX * width();
+            mSegments[i]->p.x = mSegments[i]->p.x / maxX * width();
+            mSegments[i]->q.x = mSegments[i]->q.x / maxX * width();
         }
     }
 
     if (maxY > height()) {
         for (int i = 0; i < numSegments; i++) {
-            mSegments[i].p.y = mSegments[i].p.y / maxY * height();
-            mSegments[i].q.y = mSegments[i].q.y / maxY * height();
+            mSegments[i]->p.y = mSegments[i]->p.y / maxY * height();
+            mSegments[i]->q.y = mSegments[i]->q.y / maxY * height();
         }
     }
 
@@ -403,24 +270,13 @@ void Area::save(QString file) {
 
     for (int i = 0; i < mSegments.size(); i++) {
 
-        fout << mSegments[i].p.x << std::endl;
-        fout << mSegments[i].p.y << std::endl;
-        fout << mSegments[i].q.x << std::endl;
-        fout << mSegments[i].q.y << std::endl;
+        fout << mSegments[i]->p.x << " ";
+        fout << mSegments[i]->p.y << " ";
+        fout << mSegments[i]->q.x << " ";
+        fout << mSegments[i]->q.y << std::endl;
     }
-}
 
-void Area::saveresult(QString file) {
 
-    std::ofstream fout(file.toAscii().data());
-
-    fout << mIntersections.size() << std::endl;
-
-    for (int i = 0; i < mIntersections.size(); i++) {
-
-        fout << mIntersections[i].p.x << " ";
-        fout << mIntersections[i].p.y << " ";
-    }
 }
 
 Area::~Area() {
@@ -432,143 +288,53 @@ void Area::paintEvent(QPaintEvent *event) {
     draw(&painter);
 }
 
-void Area::undo() {
-
-    if (history.size() > 0) {
-        future.push_back(history.back());
-        history.pop_back();
-    }
-
-    update();
-}
-
-void Area::redo() {
-
-    if (future.size() > 0) {
-        history.push_back(future.back());
-        future.pop_back();
-    }
-
-    update();
-
-}
-
-void Area::draw() {
-    drawMode = true;
-    update();
-}
-
-void Area::stopdraw(){
-    drawMode = false;
-    mSegments.clear();
-    for (std::list<Segment>::iterator it = history.begin(); it != history.end(); ++it)
-        mSegments.push_back(*it);
-
-    history.clear();
-    future.clear();
-    mCurIntersection = -1;
-    intersection(mSegments, mIntersections);
-    update();
-}
-
-
-void Area::mouseMoveEvent(QMouseEvent *event) {
-    if (drawMode) {
-        if (mCurDrawPoint != NULL) {
-            if (mCurDrawingPoint != NULL) delete mCurDrawingPoint;
-            mCurDrawingPoint = new Point2d(event->x(), event->y());
-        }
-        update();
-    }
-}
-
-void Area::mousePressEvent(QMouseEvent *event) {
-    if (drawMode) {
-       if (mCurDrawPoint != NULL) delete mCurDrawPoint;
-       if (mCurDrawingPoint != NULL) delete mCurDrawingPoint;
-       mCurDrawPoint = new Point2d(event->x(), event->y());
-    }
-}
-
-void Area::mouseReleaseEvent(QMouseEvent *event) {
-    if (drawMode) {
-        history.push_back(Segment(*mCurDrawPoint, Point2d(event->x(), event->y())));
-        mCurDrawPoint = NULL;
-        mCurDrawingPoint = NULL;
-    }
-}
-
 void Area::draw(QPainter *painter) {
 
-    if (! drawMode) {
+    QPen blackPen(Qt::black, 2);
+    QPen greenPen(Qt::green, 2);
 
-        QPen blackPen(Qt::black, 2);
-        QPen greenPen(Qt::green, 2);
+    for (int i = 0; i < mSegments.size(); i++) {
 
-        for (int i = 0; i < mSegments.size(); i++) {
-
-            if ((mCurLine > -1 ) && (mCurLine < width()) &&
-                    (((mSegments[i].p.x < mCurLine) && (mCurLine < mSegments[i].q.x)) ||
-                    ((mSegments[i].q.x < mCurLine) && (mCurLine < mSegments[i].p.x)))) {
-                painter->setPen(greenPen);
-            } else {
-                painter->setPen(blackPen);
-            }
-
-            painter->drawLine(mSegments[i].p.x, mSegments[i].p.y, mSegments[i].q.x, mSegments[i].q.y);
-        }
-
-        if ((mCurIntersection > -1 ) && (mCurLine < width() ) ) {
-            QPen magentaPen(Qt::magenta, 2);
-            painter->setPen(magentaPen);
-            painter->drawLine(mIntersections[mCurIntersection].seg1.p.x, mIntersections[mCurIntersection].seg1.p.y, mIntersections[mCurIntersection].seg1.q.x, mIntersections[mCurIntersection].seg1.q.y);
-            painter->drawLine(mIntersections[mCurIntersection].seg2.p.x, mIntersections[mCurIntersection].seg2.p.y, mIntersections[mCurIntersection].seg2.q.x, mIntersections[mCurIntersection].seg2.q.y);
-        }
-
-        QPen pointPen(Qt::red, 3);
-        painter->setPen(pointPen);
-        for (int i = 0; ((i <= mCurIntersection) && (mIntersections[i].p.x <= mCurLine)) ; i++) {
-            painter->drawEllipse(mIntersections[i].p.x, mIntersections[i].p.y, 3, 3);
-        }
-
-        QPen bluePen(Qt::blue, 3);
-        painter->setPen(bluePen);
-
-        if (mCurLine == 0) {
-            painter->drawLine(0, 0, 0, height() );
-            painter->setOpacity(0.5);
-            painter->fillRect(0, 0, width(), height(), Qt::gray);
+        if ((mCurIntersection > -1 ) && (mCurIntersection < mIntersections.size() - 1 ) &&
+                (((mSegments[i]->p.x < mIntersections[mCurIntersection]->p.x) && (mIntersections[mCurIntersection]->p.x < mSegments[i]->q.x)) ||
+                ((mSegments[i]->q.x < mIntersections[mCurIntersection]->p.x) && (mIntersections[mCurIntersection]->p.x < mSegments[i]->p.x)))) {
+            painter->setPen(greenPen);
         } else {
-            if (mCurLine == width()) {
-                painter->drawLine(width(), 0, width(), height() );
-            } else {
-                painter->drawLine(mCurLine, 0, mCurLine, height() );
-                painter->setOpacity(0.5);
-                painter->fillRect(mCurLine, 0, width(), height(), Qt::gray);
-            }
-
+            painter->setPen(blackPen);
         }
+
+        painter->drawLine(mSegments[i]->p.x, mSegments[i]->p.y, mSegments[i]->q.x, mSegments[i]->q.y);
+    }
+
+    if ((mCurIntersection > -1 ) && (mCurIntersection < mIntersections.size() - 1 ) ) {
+        QPen magentaPen(Qt::magenta, 2);
+        painter->setPen(magentaPen);
+        painter->drawLine(mIntersections[mCurIntersection]->seg1->p.x, mIntersections[mCurIntersection]->seg1->p.y, mIntersections[mCurIntersection]->seg1->q.x, mIntersections[mCurIntersection]->seg1->q.y);
+        painter->drawLine(mIntersections[mCurIntersection]->seg2->p.x, mIntersections[mCurIntersection]->seg2->p.y, mIntersections[mCurIntersection]->seg2->q.x, mIntersections[mCurIntersection]->seg2->q.y);
+    }
+
+    QPen pointPen(Qt::red, 3);
+    painter->setPen(pointPen);
+    for (int i = 0; i <= mCurIntersection; i++) {
+        painter->drawEllipse(mIntersections[i]->p.x, mIntersections[i]->p.y, 3, 3);
+    }
+
+    QPen bluePen(Qt::blue, 3);
+    painter->setPen(bluePen);
+
+    if (mCurIntersection == -1) {
+        painter->drawLine(0, 0, 0, height() );
+        painter->setOpacity(0.5);
+        painter->fillRect(0, 0, width(), height(), Qt::gray);
     } else {
-        QPen grayPen(Qt::gray, 1);
-        painter->setPen(grayPen);
-        for (int i = 0; i < width(); i+=10) {
-            painter->drawLine(i, 0, i, height());
-        }
-        for (int i = 0; i < height(); i+=10) {
-            painter->drawLine(0, i, width(), i);
-        }
-
-        QPen blackPen(Qt::black, 2);
-        painter->setPen(blackPen);
-        for (std::list<Segment>::iterator it = history.begin(); it != history.end(); ++it) {
-            painter->drawLine((*it).p.x, (*it).p.y, (*it).q.x, (*it).q.y);
+        if (mCurIntersection == mIntersections.size() - 1) {
+            painter->drawLine(width(), 0, width(), height() );
+        } else {
+            painter->drawLine(mIntersections[mCurIntersection]->p.x, 0, mIntersections[mCurIntersection]->p.x, height() );
+            painter->setOpacity(0.5);
+            painter->fillRect(mIntersections[mCurIntersection]->p.x, 0, width(), height(), Qt::gray);
         }
 
-        QPen bluePen(Qt::blue, 2);
-        painter->setPen(bluePen);
-        if ((mCurDrawPoint != NULL) && (mCurDrawingPoint != NULL)) {
-                painter->drawLine(mCurDrawPoint->x, mCurDrawPoint->y, mCurDrawingPoint->x, mCurDrawingPoint->y);
-        }
     }
 }
 

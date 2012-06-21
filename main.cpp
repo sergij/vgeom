@@ -1,7 +1,6 @@
 #include <QtGui/QApplication>
 #include "mainwindow.h"
-#include <iostream>
-
+#define EPS 1E-9
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

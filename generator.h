@@ -22,7 +22,7 @@ public slots:
     void numChanged(int num);
     void generate();
 signals:
-    void generatePoints(int num, bool vert, bool multi, bool full);
+    void generatePoints(int num);
 
 };
 

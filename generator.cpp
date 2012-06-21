@@ -7,7 +7,7 @@ Generator::Generator(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->numberScroll->setRange (2, 50);
+    ui->numberScroll->setRange (0, 50);
     ui->numberScroll->setSingleStep (1);
     ui->numberScroll->setSliderPosition (10);
 
@@ -17,7 +17,7 @@ Generator::Generator(QWidget *parent) :
     connect(ui->ok, SIGNAL(clicked()), this, SLOT(generate()));
     connect(ui->ok, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->cancel, SIGNAL(clicked()), this, SLOT(close()));
-    connect(this, SIGNAL(generatePoints(int, bool, bool, bool)), parent, SLOT(numChanged( int, bool, bool, bool )));
+    connect(this, SIGNAL(generatePoints(int)), parent, SLOT(numChanged( int )));
 }
 
 Generator::~Generator()
@@ -32,6 +32,6 @@ void Generator::numChanged(int num)
 
 
 void Generator::generate() {
-    emit generatePoints(ui->numberScroll->value(), ui->vert->isChecked(), ui->multi->isChecked(), ui->full->isChecked());
+    emit generatePoints(ui->numberScroll->value());
 }
 

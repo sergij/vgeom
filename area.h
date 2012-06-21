@@ -24,53 +24,30 @@ public:
 
     void draw(QPainter *painter);
     void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
 
 
 private slots:
 
     void forwardstep();
     void backstep();
-    void qforwardstep();
-    void qbackstep();
     void forwardsteps();
     void backsteps();
-    void qforwardsteps();
-    void qbacksteps();
     void pause();
-    void draw();
-    void stopdraw();
     void stop();
-    void undo();
-    void redo();
     void finish();
     void load(QString file);
     void save(QString file);
-    void saveresult(QString file);
-    void generetePoints(int numSegments, bool vert, bool multi, bool full);
+    void generetePoints(int numSegments);
 
 
 private:
     QTimer *forwardTimer;
     QTimer *backTimer;
-    QTimer *qforwardTimer;
-    QTimer *qbackTimer;
     int timerSpeed;
-    int qtimerSpeed;
-    int mCurLine;
 
-    bool drawMode;
-
-    std::vector<Segment> mSegments;
-    std::vector<Intersection> mIntersections;
+    std::vector<Segment*> mSegments;
+    std::vector<Intersection*> mIntersections;
     int mCurIntersection;
-
-    Point2d* mCurDrawPoint;
-    Point2d* mCurDrawingPoint;
-    std::list<Segment> history;
-    std::list<Segment> future;
 
 };
 

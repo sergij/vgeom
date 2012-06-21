@@ -22,22 +22,16 @@ private:
     Ui::MainWindow *ui;
 
 public slots:
-    void numChanged(int num, bool vert, bool multi, bool full);
+    void numChanged(int num);
     void generation();
-    void drawSlot();
-    void stopdrawSlot();
     void enableon();
     void enableof();
     void load();
     void save();
-    void saveresult();
 signals:
-    void generetePoints(int num, bool vert, bool multi, bool full);
+    void generetePoints(int num);
     void loadFromFile(QString file);
     void saveToFile(QString file);
-    void saveResultToFile(QString file);
-    void drawSignal();
-    void stopdrawSignal();
 };
 
 #endif // MAINWINDOW_H
