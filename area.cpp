@@ -47,11 +47,11 @@ struct point_f{
 
 struct event {
         double x;
-        int tp, id;
+        int tp, id, id2;
 
         event() { }
-        event (double x, int tp, int id)
-                : x(x), tp(tp), id(id)
+        event (double x, int tp, int id, int id2=0)
+            : x(x), tp(tp), id(id), id2(id2)
         { }
 
         bool operator< (const event & e) const {
@@ -62,13 +62,16 @@ struct event {
 };
 
 
-void intersection(const std::vector<Segment*> &segments, std::vector<Intersection*> &intersections) {
-
+void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &intersections) {
     int n = segments.size();
     intersections.clear();
     for (int i = 0; i < n; i++) {
         if(segments[i]->p.x > segments[i]->q.x)
             std::swap(segments[i]->p, segments[i]->q);
+        else if(segments[i]->p.x == segments[i]->q.x){
+            if(segments[i]->p.y > segments[i]->q.y)
+                std::swap(segments[i]->p, segments[i]->q);
+        }
         Point2d p(segments[i]->p.x, segments[i]->p.y);
         Intersection* intersection = new Intersection(p, segments[ i ], segments[ i ]);
         intersections.push_back(intersection);
@@ -85,29 +88,49 @@ void intersection(const std::vector<Segment*> &segments, std::vector<Intersectio
     std::sort(e.begin(), e.end());
     std::set<Segment*> s_segs;
     std::vector< std::set<Segment*>::iterator > where;
+    std::vector<Segment*>::iterator to_find;
     where.resize (segments.size());
-    int counter=1;
+    int counter=1, id2;
     for (size_t i=0; i<e.size(); ++i) {
         int id = e[i].id;
         if (e[i].tp == +1) {
-            std::set<Segment*>::iterator nxt = s_segs.lower_bound (segments[id]);
+            std::set<Segment*>::iterator s1 = s_segs.lower_bound (segments[id]);
             std::set<Segment*>::iterator nxt2 = s_segs.lower_bound (segments[id]);
-            std::set<Segment*>::iterator prv = (nxt==s_segs.begin()) ? s_segs.end(): --nxt2;
-            if (nxt != s_segs.end() && intersect (*nxt, segments[id])){
-                Point2d p(find_point(*nxt, segments[i]));
-                intersections.push_back(new Intersection(p, *nxt, segments[id]));
+            std::set<Segment*>::iterator s2 = (s1==s_segs.begin()) ? s_segs.end(): --nxt2;
+
+            if (s1 != s_segs.end() && intersect(*s1, segments[id])){
+                Point2d p(find_point(*s1, segments[id]));
+                intersections.push_back(new Intersection(p, *s1, segments[id]));
+                for(size_t j=i+1;j<e.size() - 1; j++) {
+                    if(e[j+1].x>=p.x)
+                    {
+                        to_find=find(segments.begin(), segments.end(), (*s1));
+                        if(to_find==segments.end())
+                            break;
+                        id2 = to_find - segments.begin();
+                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
+                        break;
+                    }
+                }
             }
-            if (prv != s_segs.end() && intersect (*prv, segments[id])) {
-                Point2d p(find_point(*prv, segments[i]));
-                intersections.push_back(new Intersection(p, *prv, segments[id]));
+            if (s2 != s_segs.end() && intersect(*s2, segments[id]) ) {
+                Point2d p(find_point(*s2, segments[id]));
+                intersections.push_back(new Intersection(p, *s2, segments[id]));
+                for(size_t j=i+1;j<e.size() - 1; j++) {
+                    if(e[j+1].x>=p.x)
+                    {
+                        to_find=find(segments.begin(), segments.end(), (*s2));
+                        if(to_find==segments.end())
+                            break;
+                        id2 = to_find - segments.begin();
+                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
+                        break;
+                    }
+                }
             }
-            if (prv != s_segs.end() && nxt != s_segs.end() && intersect (*prv, *nxt)) {
-                Point2d p(find_point(*prv, *nxt));
-                intersections.push_back(new Intersection(p, *prv, *nxt));
-            }
-            where[id] = s_segs.insert (nxt, segments[id]);
+            where[id] = s_segs.insert (s1, segments[id]);
         }
-        else {
+        else if(e[i].tp == -1){
             std::set<Segment*>::iterator tmp = where[id], tmp2 = where[id], tih = where[id];
             std::set<Segment*>::iterator nxt = tmp++;
             std::set<Segment*>::iterator prv = (tmp2==s_segs.begin()) ? s_segs.end(): --tmp2;
@@ -124,6 +147,9 @@ void intersection(const std::vector<Segment*> &segments, std::vector<Intersectio
                 intersections.push_back(new Intersection(p, *prv, *tih));
             }
             s_segs.erase(where[id]);
+        }
+        else {
+            qDebug("FAP");
         }
     }
 
