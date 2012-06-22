@@ -30,8 +30,15 @@ struct Segment {
             if (abs (p.x - q.x) < EPS)  return p.y;
             return p.y + (q.y - p.y) * (x - p.x) / (q.x - p.x);
     }
+//    bool operator< (const Segment & b) {
+//            double x = std::max (std::min (this->p.x, this->q.x), std::min (b.p.x, b.q.x));
+//            return this->get_bott(x) < b.get_bott(x) - EPS;
+//    }
 };
-
+//bool operator< (const Segment & a, const Segment & b) {
+//        double x = std::max (std::min (a.p.x, a.q.x), std::min (b.p.x, b.q.x));
+//        return a.get_bott(x) < b.get_bott(x) - EPS;
+//}
 struct Intersection {
     Point2d p;
     Segment* seg1;
