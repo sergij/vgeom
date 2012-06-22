@@ -90,7 +90,7 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
     std::vector< std::set<Segment*>::iterator > where;
     std::vector<Segment*>::iterator to_find;
     where.resize (segments.size());
-    int counter=1, id2;
+    int id2;
     for (size_t i=0; i<e.size(); ++i) {
         int id = e[i].id;
         if (e[i].tp == +1) {
@@ -294,7 +294,7 @@ void Area::save(QString file) {
 
     fout << mSegments.size() << std::endl;
 
-    for (int i = 0; i < mSegments.size(); i++) {
+    for (size_t i = 0; i < mSegments.size(); i++) {
 
         fout << mSegments[i]->p.x << " ";
         fout << mSegments[i]->p.y << " ";
@@ -319,7 +319,7 @@ void Area::draw(QPainter *painter) {
     QPen blackPen(Qt::black, 2);
     QPen greenPen(Qt::green, 2);
 
-    for (int i = 0; i < mSegments.size(); i++) {
+    for (size_t i = 0; i < mSegments.size(); i++) {
 
         if ((mCurIntersection > -1 ) && (mCurIntersection < mIntersections.size() - 1 ) &&
                 (((mSegments[i]->p.x < mIntersections[mCurIntersection]->p.x) && (mIntersections[mCurIntersection]->p.x < mSegments[i]->q.x)) ||
