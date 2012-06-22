@@ -13,12 +13,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     generator.cpp \
-    area.cpp
+    area.cpp \
+    toolbar.cpp
 
 HEADERS  += mainwindow.h \
     generator.h \
     area.h \
-    util.h
+    util.h \
+    toolbar.h
 
 FORMS    += mainwindow.ui \
     generator.ui

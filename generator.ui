@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>231</height>
+    <width>463</width>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>80</y>
+     <y>70</y>
      <width>67</width>
      <height>17</height>
     </rect>
@@ -55,8 +55,8 @@
   <widget class="QPushButton" name="ok">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>159</y>
+     <x>210</x>
+     <y>269</y>
      <width>97</width>
      <height>27</height>
     </rect>
@@ -68,14 +68,53 @@
   <widget class="QPushButton" name="cancel">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>160</y>
+     <x>330</x>
+     <y>270</y>
      <width>97</width>
      <height>27</height>
     </rect>
    </property>
    <property name="text">
     <string>Cancel</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="vert">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>110</y>
+     <width>201</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Вертикальные отрезки</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="multi">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>150</y>
+     <width>381</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Пересечение более двух отрезков в одной точке</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="full">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>190</y>
+     <width>311</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Все отрезки пересекаются между собой</string>
    </property>
   </widget>
  </widget>
