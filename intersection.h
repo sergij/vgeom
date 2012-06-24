@@ -153,6 +153,4 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
     std::sort(intersections.begin(), intersections.end(), compIntersections);
 }
 
-
-
 #endif // INTERSECTION_H

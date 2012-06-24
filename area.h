@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include "util.h"
-#include <vector>
 #include <set>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
@@ -83,8 +82,8 @@ private:
      int timerSpeed;
      int qtimerSpeed;
 
-     std::vector<Segment*> mSegments;
-     std::vector<Intersection*> mIntersections;
+     boost::ptr_vector<Segment> mSegments;
+     boost::ptr_vector<Intersection> mIntersections;
      std::set<int> mSuperSegments; // vert, multi intersec
 
      int mCurLine;
@@ -93,8 +92,8 @@ private:
      bool drawMode;
      Point2d* mCurDrawPoint;
      Point2d* mCurDrawingPoint;
-     std::list<Segment*> history;
-     std::list<Segment*> future;
+     boost::ptr_list<Segment> history;
+     boost::ptr_list<Segment> future;
 };
 
 #endif // AREA_H

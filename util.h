@@ -52,5 +52,4 @@ struct Intersection {
 
 
 
-
 #endif // UTIL_H
