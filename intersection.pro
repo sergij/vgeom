@@ -20,7 +20,8 @@ HEADERS  += mainwindow.h \
     generator.h \
     area.h \
     util.h \
-    toolbar.h
+    toolbar.h \
+    intersection.h
 
 FORMS    += mainwindow.ui \
     generator.ui

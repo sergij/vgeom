@@ -22,22 +22,22 @@ private:
     Ui::MainWindow *ui;
 
 public slots:
-    void numChanged(int num, bool vert, bool multi, bool full);
-    void generation();
-    void drawSlot();
-    void stopdrawSlot();
-    void enableon();
-    void enableof();
-    void load();
-    void save();
-    void saveresult();
+    void generetePointsMainWindowSlot(int num, bool vert, bool multi, bool full);
+    void generationMainWindowSlot();
+    void drawMainWindowSlot();
+    void stopDrawMainWindowSlot();
+    void enableToolsOnMainWindowSlot();
+    void enableToolsOfMainWindowSlot();
+    void loadFromFileMainWindowSlot();
+    void saveToFileMainWindowSlot();
+    void saveResultToFileMainWindowSlot();
 signals:
-    void generetePoints(int num, bool vert, bool multi, bool full);
-    void loadFromFile(QString file);
-    void saveToFile(QString file);
-    void saveResultToFile(QString file);
-    void drawSignal();
-    void stopdrawSignal();
+    void generetePointsMainWindowSignal(int num, bool vert, bool multi, bool full);
+    void loadFromFileMainWindowSignal(QString file);
+    void saveToFileMainWindowSignal(QString file);
+    void saveResultToFileMainWindowSignal(QString file);
+    void drawMainWindowSignal();
+    void stopDrawMainWindowSignal();
 };
 
 #endif // MAINWINDOW_H

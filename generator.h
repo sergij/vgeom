@@ -19,10 +19,10 @@ private:
     Ui::Generator *ui;
 
 public slots:
-    void numChanged(int num);
-    void generate();
+    void generatePointsGeneratorSlot(int num);
+    void generateGeneratorSlot();
 signals:
-    void generatePoints(int num, bool vert, bool multi, bool full);
+    void generatePointsGeneratorSignal(int num, bool vert, bool multi, bool full);
 
 };
 

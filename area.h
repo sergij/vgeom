@@ -5,6 +5,8 @@
 #include "util.h"
 #include <vector>
 #include <set>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/ptr_container/ptr_list.hpp>
 #include <QtCore/QTimer>
 #include <QtGui/QPainter>
 #include <QtGui/QPalette>
@@ -23,7 +25,7 @@ public:
   explicit Area(QWidget *parent = 0);
   ~Area();
 
-  void draw(QPainter *painter);
+  void drawAreaSlot(QPainter *painter);
   void paintEvent(QPaintEvent *event);
   void mousePressEvent(QMouseEvent *event);
   void mouseReleaseEvent(QMouseEvent *event);
@@ -32,28 +34,45 @@ public:
 
 public slots:
 
-    void forwardstep();
-    void backstep();
-    void qforwardstep();
-    void qbackstep();
-    void forwardsteps();
-    void backsteps();
-    void qforwardsteps();
-    void qbacksteps();
-    void pause();
-    void draw();
-    void stopdraw();
-    void stop();
-    void undo();
-    void redo();
-    void finish();
-    void load(QString file);
-    void save(QString file);
-    void saveresult(QString file);
-    void generetePoints(int numSegments, bool vert, bool multi, bool full);
+  // single step slots
+    void forwardStepAreaSlot();
+    void backStepAreaSlot();
+
+  // continuous step slots
+    void qforwardStepAreaSlot();
+    void qbackStepAreaSlot();
+
+  // single steps slots
+    void forwardStepsAreaSlot();
+    void backStepsAreaSlot();
+
+  // continuous step slots
+    void qforwardStepsAreaSlot();
+    void qbackStepsAreaSlot();
+
+  // step control slots
+    void pauseAreaSlot();
+    void stopAreaSlot();
+    void finishAreaSlot();
+
+  // draw control slots
+    void drawAreaSlot();
+    void stopDrawAreaSlot();
+    void undoAreaSlot();
+    void redoAreaSlot();
+
+  // file control steps
+    void loadFromFileAreaSlot(QString file);
+    void saveToFileAreaSlot(QString file);
+    void saveResultToFileAreaSlot(QString file);
+
+  // generation control steps
+    void generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool full);
 
 signals:
-    void generationfail();
+
+  // generation signals
+    void generationFailAreaSignal();
 
 private:
 
@@ -63,15 +82,15 @@ private:
      QTimer *qbackTimer;
      int timerSpeed;
      int qtimerSpeed;
-     int mCurLine;
-
-     bool drawMode;
 
      std::vector<Segment*> mSegments;
      std::vector<Intersection*> mIntersections;
-     std::set<int> mSuperSegments;
+     std::set<int> mSuperSegments; // vert, multi intersec
+
+     int mCurLine;
      int mCurIntersection;
 
+     bool drawMode;
      Point2d* mCurDrawPoint;
      Point2d* mCurDrawingPoint;
      std::list<Segment*> history;

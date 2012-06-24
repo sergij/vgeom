@@ -1,6 +1,7 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef MYUTIL_H
+#define MYUTIL_H
 #define EPS 1E-9
+
 struct Point2d {
     double x;
     double y;
@@ -46,7 +47,9 @@ struct Intersection {
         this->seg1 = seg1;
         this->seg2 = seg2;
     }
+
 };
+
 
 
 

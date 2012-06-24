@@ -13,45 +13,52 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setCentralWidget(ui->area);
 
-    enableof();
-    ui->actionStop_Draw->setEnabled(false);
-    ui->actionRedo->setEnabled(false);
-    ui->actionUndo->setEnabled(false);
+    // no points - no actions
+    enableToolsOfMainWindowSlot();
 
-    connect( ui->actionRandom, SIGNAL(triggered()), this, SLOT(generation()));
-    connect(this, SIGNAL(generetePoints(int, bool, bool, bool)), ui->area, SLOT(generetePoints(int, bool, bool, bool)));
-    connect(this, SIGNAL(generetePoints(int, bool, bool, bool)), this, SLOT(enableon()));
-    connect(ui->toolBar->forwardstepAction, SIGNAL(triggered()), ui->area, SLOT(forwardstep()));
-    connect(ui->toolBar->backstepAction, SIGNAL(triggered()), ui->area, SLOT(backstep()));
-    connect(ui->toolBar->forwardstepsAction, SIGNAL(triggered()), ui->area, SLOT(forwardsteps()));
-    connect(ui->toolBar->backstepsAction, SIGNAL(triggered()), ui->area, SLOT(backsteps()));
-    connect(ui->toolBar->qforwardstepsAction, SIGNAL(triggered()), ui->area, SLOT(qforwardsteps()));
-    connect(ui->toolBar->qbackstepsAction, SIGNAL(triggered()), ui->area, SLOT(qbacksteps()));
-    connect(this, SIGNAL(generetePoints(int, bool, bool, bool)), ui->area, SLOT(pause()));
-    connect(ui->toolBar->pauseAction, SIGNAL(triggered()), ui->area, SLOT(pause()));
-    connect(ui->toolBar->stopAction, SIGNAL(triggered()), ui->area, SLOT(stop()));
-    connect(ui->toolBar->finishAction, SIGNAL(triggered()), ui->area, SLOT(finish()));
-    connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(load()));
-    connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(save()));
-    connect(ui->actionSaveResult, SIGNAL(triggered()), this, SLOT(saveresult()));
-    connect(ui->toolBar->stopAction, SIGNAL(triggered()), this, SLOT(enableof()));
+    connect( ui->actionRandom, SIGNAL(triggered()), this, SLOT(generationMainWindowSlot()));
+    connect(this, SIGNAL(generetePointsMainWindowSignal(int, bool, bool, bool)), this, SLOT(enableToolsOnMainWindowSlot()));
 
-    connect(ui->area, SIGNAL(generationfail()), this, SLOT(enableof()));
 
-    connect(ui->actionDraw, SIGNAL(triggered()), this, SLOT(drawSlot()));
-    connect(ui->actionStop_Draw, SIGNAL(triggered()), this, SLOT(stopdrawSlot()));
-    connect(ui->actionRedo, SIGNAL(triggered()), ui->area, SLOT(redo()));
-    connect(ui->actionUndo, SIGNAL(triggered()), ui->area, SLOT(undo()));
+    // connect to Area slots
+    connect(this, SIGNAL(generetePointsMainWindowSignal(int, bool, bool, bool)), ui->area, SLOT(generetePointsAreaSlot(int, bool, bool, bool)));
+    connect(this, SIGNAL(generetePointsMainWindowSignal(int, bool, bool, bool)), ui->area, SLOT(pauseAreaSlot()));
 
-    connect(this, SIGNAL(drawSignal()), ui->area, SLOT(pause()));
-    connect(this, SIGNAL(stopdrawSignal()), this, SLOT(enableon()));
+    connect(ui->toolBar->forwardstepAction, SIGNAL(triggered()), ui->area, SLOT(forwardStepAreaSlot()));
+    connect(ui->toolBar->backstepAction, SIGNAL(triggered()), ui->area, SLOT(backStepAreaSlot()));
+    connect(ui->toolBar->forwardstepsAction, SIGNAL(triggered()), ui->area, SLOT(forwardStepsAreaSlot()));
+    connect(ui->toolBar->backstepsAction, SIGNAL(triggered()), ui->area, SLOT(backStepsAreaSlot()));
+    connect(ui->toolBar->qforwardstepsAction, SIGNAL(triggered()), ui->area, SLOT(qforwardStepsAreaSlot()));
+    connect(ui->toolBar->qbackstepsAction, SIGNAL(triggered()), ui->area, SLOT(qbackStepsAreaSlot()));
 
-    connect(this, SIGNAL(loadFromFile(QString)), ui->area, SLOT(load(QString)));
-    connect(this, SIGNAL(saveToFile(QString)), ui->area, SLOT(save(QString)));
-    connect(this, SIGNAL(loadFromFile(QString)), this, SLOT(enableon()));
+    connect(ui->toolBar->pauseAction, SIGNAL(triggered()), ui->area, SLOT(pauseAreaSlot()));
+    connect(ui->toolBar->stopAction, SIGNAL(triggered()), ui->area, SLOT(stopAreaSlot()));
+    connect(ui->toolBar->finishAction, SIGNAL(triggered()), ui->area, SLOT(finishAreaSlot()));
 
-    connect(this, SIGNAL(drawSignal()), ui->area, SLOT(draw()));
-    connect(this, SIGNAL(stopdrawSignal()), ui->area, SLOT(stopdraw()));
+    // files control
+    connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(loadFromFileMainWindowSlot()));
+    connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveToFileMainWindowSlot()));
+    connect(ui->actionSaveResult, SIGNAL(triggered()), this, SLOT(saveResultToFileMainWindowSlot()));
+
+    // draw control
+    connect(ui->actionDraw, SIGNAL(triggered()), this, SLOT(drawMainWindowSlot()));
+    connect(ui->actionStopDraw, SIGNAL(triggered()), this, SLOT(stopDrawMainWindowSlot()));
+    connect(ui->actionRedo, SIGNAL(triggered()), ui->area, SLOT(redoAreaSlot()));
+    connect(ui->actionUndo, SIGNAL(triggered()), ui->area, SLOT(undoAreaSlot()));
+
+    connect(this, SIGNAL(drawMainWindowSignal()), ui->area, SLOT(pauseAreaSlot()));
+    connect(this, SIGNAL(drawMainWindowSignal()), ui->area, SLOT(drawAreaSlot()));
+    connect(this, SIGNAL(stopDrawMainWindowSignal()), ui->area, SLOT(stopDrawAreaSlot()));
+
+    // files control
+    connect(this, SIGNAL(loadFromFileMainWindowSignal(QString)), ui->area, SLOT(loadFromFileAreaSlot(QString)));
+    connect(this, SIGNAL(saveToFileMainWindowSignal(QString)), ui->area, SLOT(saveToFileAreaSlot(QString)));
+
+    // enable tools
+    connect(ui->area, SIGNAL(generationFailAreaSignal()), this, SLOT(enableToolsOfMainWindowSlot()));
+    connect(this, SIGNAL(loadFromFileMainWindowSignal(QString)), this, SLOT(enableToolsOnMainWindowSlot()));
+    connect(this, SIGNAL(stopDrawMainWindowSignal()), this, SLOT(enableToolsOnMainWindowSlot()));
+    connect(ui->toolBar->stopAction, SIGNAL(triggered()), this, SLOT(enableToolsOfMainWindowSlot()));
 
 }
 
@@ -60,12 +67,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::numChanged(int num, bool vert, bool multi, bool full)
+void MainWindow::generetePointsMainWindowSlot(int num, bool vert, bool multi, bool full)
 {
-    emit generetePoints(num, vert, multi, full);
+    emit generetePointsMainWindowSignal(num, vert, multi, full);
 }
 
-void MainWindow::generation()
+void MainWindow::generationMainWindowSlot()
 {
     Generator* g = new Generator(this);
     if (g->exec() == QDialog::Accepted) {
@@ -73,7 +80,7 @@ void MainWindow::generation()
     delete g;
 }
 
-void MainWindow::enableof()
+void MainWindow::enableToolsOfMainWindowSlot()
 {
     ui->toolBar->backstepAction->setEnabled(false);
     ui->toolBar->backstepsAction->setEnabled(false);
@@ -86,9 +93,12 @@ void MainWindow::enableof()
     ui->actionSaveResult->setEnabled(false);
     ui->toolBar->qbackstepsAction->setEnabled(false);
     ui->toolBar->qforwardstepsAction->setEnabled(false);
+    ui->actionStopDraw->setEnabled(false);
+    ui->actionRedo->setEnabled(false);
+    ui->actionUndo->setEnabled(false);
 }
 
-void MainWindow::enableon()
+void MainWindow::enableToolsOnMainWindowSlot()
 {
     ui->toolBar->backstepAction->setEnabled(true);
     ui->toolBar->backstepsAction->setEnabled(true);
@@ -103,38 +113,38 @@ void MainWindow::enableon()
     ui->toolBar->qforwardstepsAction->setEnabled(true);
 }
 
-void MainWindow::load()
+void MainWindow::loadFromFileMainWindowSlot()
 {
     QString file = QFileDialog::getOpenFileName(0, "Select file", "", "*.txt");
-    if (file != NULL) emit loadFromFile(file);
+    if (file != NULL) emit loadFromFileMainWindowSignal(file);
 }
 
-void MainWindow::save()
+void MainWindow::saveToFileMainWindowSlot()
 {
     QString file = QFileDialog::getSaveFileName(0, "Select file", "", "*.txt");
-    if (file != NULL) emit saveToFile(file);
+    if (file != NULL) emit saveToFileMainWindowSignal(file);
 }
 
 
-void MainWindow::saveresult()
+void MainWindow::saveResultToFileMainWindowSlot()
 {
     QString file = QFileDialog::getSaveFileName(0, "Select file", "", "*.txt");
-    if (file != NULL) emit saveResultToFile(file);
+    if (file != NULL) emit saveResultToFileMainWindowSignal(file);
 }
 
-void MainWindow::drawSlot() {
+void MainWindow::drawMainWindowSlot() {
     ui->actionDraw->setEnabled(false);
-    ui->actionStop_Draw->setEnabled(true);
+    ui->actionStopDraw->setEnabled(true);
     ui->actionRedo->setEnabled(true);
     ui->actionUndo->setEnabled(true);
-    emit drawSignal();
+    emit drawMainWindowSignal();
 }
 
-void MainWindow::stopdrawSlot() {
+void MainWindow::stopDrawMainWindowSlot() {
     ui->actionDraw->setEnabled(true);
-    ui->actionStop_Draw->setEnabled(false);
+    ui->actionStopDraw->setEnabled(false);
     ui->actionRedo->setEnabled(false);
     ui->actionUndo->setEnabled(false);
-    emit stopdrawSignal();
+    emit stopDrawMainWindowSignal();
 }
 
