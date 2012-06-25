@@ -51,6 +51,16 @@ void Area::computeIntersections() {
   }
 }
 
+void Area::cleanSegments() {
+
+  mCurLine = 0;
+  mCurIntersection = -1;
+  mSegments.release();
+  mIntersections.release();
+  mSuperSegments.clear();
+
+}
+
 Area::Area(QWidget *parent) :
     QWidget(parent) {
 
@@ -166,11 +176,8 @@ void Area::stopAreaSlot() {
     backTimer->stop();
     qforwardTimer->stop();
     qbackTimer->stop();
-    mCurLine = 0;
 
-    mIntersections.release();
-    mSegments.release();
-    mCurIntersection = -1;
+    cleanSegments();
 
     update();
 }
@@ -190,7 +197,8 @@ void Area::finishAreaSlot() {
 
 void Area::generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool full) {
 
-    mSegments.release();
+    cleanSegments();
+
     if (full) {
         int dx = width() / numSegments;
         int dy = height() / numSegments;
@@ -232,11 +240,7 @@ void Area::generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool f
         mSegments.push_back(new Segment(Point2d(rand()%width(), rand()%height()), Point2d(rand()%width(), rand()%height())));
     }
 
-    mCurIntersection = -1;
-    mCurLine = 0;
-
     if (mSegments.size() == 0) {
-        mIntersections.release();
         emit generationFailAreaSignal();
     } else {
         computeIntersections();
@@ -248,7 +252,7 @@ void Area::generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool f
 
 void Area::loadFromFileAreaSlot(QString file) {
 
-    mSegments.release();
+    cleanSegments();
 
     int numSegments;
     int x1, y1, x2, y2;
@@ -257,8 +261,7 @@ void Area::loadFromFileAreaSlot(QString file) {
     std::ifstream fin(file.toAscii().data());
 
     if (!readIntFromFile(fin, numSegments)) {
-        mCurLine = 0;
-        mCurIntersection = -1;
+        return;
     }
 
     for (int i = 0; i < numSegments; i++) {
@@ -276,10 +279,7 @@ void Area::loadFromFileAreaSlot(QString file) {
 
         } else {
 
-            mCurLine = 0;
-            mCurIntersection = -1;
             mSegments.release();
-            mIntersections.release();
             emit generationFailAreaSignal();
             return;
         }
@@ -300,13 +300,12 @@ void Area::loadFromFileAreaSlot(QString file) {
         }
     }
 
-    mCurIntersection = -1;
     if (mSegments.size() == 0) {
-        mIntersections.release();
         emit generationFailAreaSignal();
     } else {
         computeIntersections();
     }
+
     update();
 }
 
@@ -338,13 +337,17 @@ void Area::saveResultToFileAreaSlot(QString file) {
         fout << mSegments[i].q.y << std::endl;
     }
 
-    fout << "r" << std::endl;
+    fout << "results" << std::endl;
 
     fout << mIntersections.size() << std::endl;
     for (int i = 0; i < mIntersections.size(); i++) {
         fout << mIntersections[i].p.x << " ";
         fout << mIntersections[i].p.y << " ";
     }
+}
+
+void compareResultsAreaSlot() {
+
 }
 
 
@@ -383,7 +386,7 @@ void Area::drawAreaSlot() {
 
 void Area::stopDrawAreaSlot(){
     drawMode = false;
-    mSegments.release();
+    cleanSegments();
     mSegments.transfer( mSegments.begin(),
                           history.begin(),
                           history.end(),
@@ -391,8 +394,7 @@ void Area::stopDrawAreaSlot(){
 
     history.release();
     future.release();
-    mCurIntersection = -1;
-    mCurLine = 0;
+
     if (mSegments.size() == 0) {
         emit generationFailAreaSignal();
     } else {

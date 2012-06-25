@@ -114,6 +114,11 @@
     <string>Сохранить результат</string>
    </property>
   </action>
+  <action name="actionCompareResults">
+   <property name="text">
+    <string>Сравнить результаты</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

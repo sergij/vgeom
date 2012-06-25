@@ -70,6 +70,7 @@ public slots:
     void generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool full);
 
     void computeIntersections();
+    void cleanSegments();
 
 signals:
 
