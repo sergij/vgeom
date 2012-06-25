@@ -11,4 +11,8 @@
 *.la
 *.a
 *.pro
+<<<<<<< HEAD
 *.user
+=======
+*.user
+>>>>>>> slave
