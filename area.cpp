@@ -27,6 +27,30 @@ bool readIntFromFile(std::ifstream &fin, int &res) {
     return false;
 }
 
+void Area::computeIntersections() {
+
+  std::vector<Segment*> segments;
+  std::vector<Intersection*> intersections;
+
+  for (int i = 0; i < mSegments.size(); i++) {
+      segments.push_back(new Segment(mSegments[i].p, mSegments[i].q));
+  }
+
+  intersection(segments, intersections);
+
+  mIntersections.release();
+
+  for (int i = 0; i < intersections.size(); i++) {
+      mIntersections.push_back(new Intersection(intersections[i]->p,
+                                                intersections[i]->seg1, intersections[i]->seg2));
+      delete intersections[i];
+  }
+
+  for (int i = 0; i < segments.size(); i++) {
+      delete segments[i];
+  }
+}
+
 Area::Area(QWidget *parent) :
     QWidget(parent) {
 
@@ -215,7 +239,7 @@ void Area::generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool f
         mIntersections.release();
         emit generationFailAreaSignal();
     } else {
-        //intersection(mSegments, mIntersections);
+        computeIntersections();
     }
 
     update();
@@ -281,7 +305,7 @@ void Area::loadFromFileAreaSlot(QString file) {
         mIntersections.release();
         emit generationFailAreaSignal();
     } else {
-        //intersection(mSegments, mIntersections);
+        computeIntersections();
     }
     update();
 }
@@ -304,6 +328,18 @@ void Area::saveToFileAreaSlot(QString file) {
 void Area::saveResultToFileAreaSlot(QString file) {
 
     std::ofstream fout(file.toAscii().data());
+    fout << mSegments.size() << std::endl;
+
+    for (int i = 0; i < mSegments.size(); i++) {
+
+        fout << mSegments[i].p.x << std::endl;
+        fout << mSegments[i].p.y << std::endl;
+        fout << mSegments[i].q.x << std::endl;
+        fout << mSegments[i].q.y << std::endl;
+    }
+
+    fout << "r" << std::endl;
+
     fout << mIntersections.size() << std::endl;
     for (int i = 0; i < mIntersections.size(); i++) {
         fout << mIntersections[i].p.x << " ";
@@ -337,7 +373,6 @@ void Area::redoAreaSlot() {
                            it,
                            future );
     }
-//std::vector<Segment*> = mSegments.
     update();
 }
 
@@ -361,7 +396,7 @@ void Area::stopDrawAreaSlot(){
     if (mSegments.size() == 0) {
         emit generationFailAreaSignal();
     } else {
-        //intersection(mSegments, mIntersections);
+        computeIntersections();
     }
     update();
 }
@@ -418,8 +453,8 @@ void Area::drawAreaSlot(QPainter *painter) {
         if ((mCurIntersection > -1 ) && (mCurLine < width() ) ) {
             QPen magentaPen(Qt::magenta, 2);
             painter->setPen(magentaPen);
-            painter->drawLine(mIntersections[mCurIntersection].seg1->p.x, mIntersections[mCurIntersection].seg1->p.y, mIntersections[mCurIntersection].seg1->q.x, mIntersections[mCurIntersection].seg1->q.y);
-            painter->drawLine(mIntersections[mCurIntersection].seg2->p.x, mIntersections[mCurIntersection].seg2->p.y, mIntersections[mCurIntersection].seg2->q.x, mIntersections[mCurIntersection].seg2->q.y);
+            painter->drawLine(mIntersections[mCurIntersection].seg1.p.x, mIntersections[mCurIntersection].seg1.p.y, mIntersections[mCurIntersection].seg1.q.x, mIntersections[mCurIntersection].seg1.q.y);
+            painter->drawLine(mIntersections[mCurIntersection].seg2.p.x, mIntersections[mCurIntersection].seg2.p.y, mIntersections[mCurIntersection].seg2.q.x, mIntersections[mCurIntersection].seg2.q.y);
         }
 
         QPen pointPen(Qt::red, 3);
@@ -470,8 +505,3 @@ void Area::drawAreaSlot(QPainter *painter) {
         }
     }
 }
-
-
-
-
-

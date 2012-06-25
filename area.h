@@ -1,6 +1,7 @@
 #ifndef AREA_H
 #define AREA_H
 
+
 #include <QWidget>
 #include "util.h"
 #include <set>
@@ -19,7 +20,7 @@ class Area;
 class Area : public QWidget
 {
     Q_OBJECT
-    
+
 public:
   explicit Area(QWidget *parent = 0);
   ~Area();
@@ -68,6 +69,8 @@ public slots:
   // generation control steps
     void generetePointsAreaSlot(int numSegments, bool vert, bool multi, bool full);
 
+    void computeIntersections();
+
 signals:
 
   // generation signals
@@ -94,6 +97,7 @@ private:
      Point2d* mCurDrawingPoint;
      boost::ptr_list<Segment> history;
      boost::ptr_list<Segment> future;
+
 };
 
 #endif // AREA_H
