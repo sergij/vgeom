@@ -36,13 +36,6 @@ void Area::computeIntersections() {
       segments.push_back(new Segment(mSegments[i].p, mSegments[i].q));
   }
 
-<<<<<<< .merge_file_mG5bBz
-bool comparator(const Segment* a, const Segment* b) {
-        double x = std::max (std::min (a->p.x, a->q.x), std::min (b->p.x, b->q.x));
-        qDebug("Comparator called");
-        return a->get_bott(x) < b->get_bott(x) - EPS;
-}
-=======
   intersection(segments, intersections);
 
   mIntersections.release();
@@ -52,216 +45,11 @@ bool comparator(const Segment* a, const Segment* b) {
                                                 intersections[i]->seg1, intersections[i]->seg2));
       delete intersections[i];
   }
->>>>>>> .merge_file_8dXI4w
 
   for (int i = 0; i < segments.size(); i++) {
       delete segments[i];
   }
 }
-<<<<<<< .merge_file_mG5bBz
-struct point_f{
-    long double x,y,z;
-};
-
-struct event {
-        double x;
-        int tp, id, id2;
-
-        event() { }
-        event (double x, int tp, int id, int id2=0)
-            : x(x), tp(tp), id(id), id2(id2)
-        { }
-
-        bool operator< (const event & e) const {
-                if (abs (this->x - e.x) > EPS)
-                    return this->x < e.x;
-                return tp > e.tp;
-        }
-};
-
-void intersection(std::vector<Segment*> segments, std::vector<Intersection*> &intersections) {
-    int n = segments.size();
-    intersections.clear();
-    for (int i = 0; i < n; i++) {
-        if(segments[i]->p.x > segments[i]->q.x) {
-            std::swap(segments[i]->p, segments[i]->q);
-        }
-        else if(segments[i]->p.x == segments[i]->q.x){
-            if(segments[i]->p.y > segments[i]->q.y) {
-                std::swap(segments[i]->p, segments[i]->q);
-            }
-        }
-        Point2d p(segments[i]->p.x, segments[i]->p.y);
-        Intersection* intersection = new Intersection(p, segments[ i ], segments[ i ]);
-        intersections.push_back(intersection);
-        p.x = segments[i]->q.x;
-        p.y = segments[i]->q.y;
-        Intersection* intersection2 = new Intersection(p, segments[ i ], segments[ i ]);
-        intersections.push_back(intersection2);
-    }
-    std::vector<event> e;
-    for (int i=0; i<n; ++i) {
-        e.push_back (event (std::min (segments[i]->p.x, segments[i]->q.x), +1, i));
-        e.push_back (event (std::max (segments[i]->p.x, segments[i]->q.x), -1, i));
-    }
-    std::sort(e.begin(), e.end());
-    bool(*fn_pt)(const Segment*, const Segment*) = comparator;
-    std::set<Segment*, bool(*)(const Segment*, const Segment*)> s_segs (fn_pt);
-    std::vector< std::set<Segment*>::iterator > where(segments.size());
-    std::vector<Segment*>::iterator to_find;
-
-    int id2;
-    for (size_t i=0; i<e.size(); ++i) {
-        int id = e[i].id;
-
-        if (e[i].tp == +1) {
-            qDebug("plus");
-            std::set<Segment*>::iterator s1 = s_segs.lower_bound (segments[id]);
-            std::set<Segment*>::iterator nxt2 = s_segs.lower_bound (segments[id]);
-            std::set<Segment*>::iterator s2 = (s1==s_segs.begin()) ? s_segs.end(): --nxt2;
-
-            if (s1 != s_segs.end() && intersect(*s1, segments[id])){
-                Point2d p(find_point(*s1, segments[id]));
-                intersections.push_back(new Intersection(p, *s1, segments[id]));
-                for(size_t j=i+1;j<e.size() - 1; j++) {
-                    if(e[j+1].x>=p.x)
-                    {
-                        to_find=find(segments.begin(), segments.end(), (*s1));
-                        if(to_find==segments.end())
-                            break;
-                        id2 = to_find - segments.begin();
-                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
-                        break;
-                    }
-                }
-            }
-            if (s2 != s_segs.end() && intersect(*s2, segments[id]) ) {
-                Point2d p(find_point(*s2, segments[id]));
-                intersections.push_back(new Intersection(p, *s2, segments[id]));
-                for(size_t j = i + 1;j<e.size() - 1; j++) {
-                    if(e[j+1].x>=p.x)
-                    {
-                        to_find=find(segments.begin(), segments.end(), (*s2));
-                        if(to_find==segments.end())
-                            break;
-                        id2 = to_find - segments.begin();
-                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
-                        break;
-                    }
-                }
-            }
-            qDebug("pre insert");
-            where[id] = s_segs.insert (s1, segments[id]);
-            qDebug("post insert");
-        }
-        else if(e[i].tp == -1){
-            qDebug("minus");
-            std::set<Segment*>::iterator s = where[id], tmp2 = where[id], tih = where[id];
-            tih++;
-            std::set<Segment*>::iterator s1 = tih;
-            std::set<Segment*>::iterator s2 = (tmp2==s_segs.begin()) ? s_segs.end(): --tmp2;
-            if (s1 != s_segs.end() && s2 != s_segs.end() && intersect (*s1, *s2)) {
-                Point2d p(find_point(*s1, *s2));
-                if(p.x > e[i].x) {
-                    intersections.push_back(new Intersection(p, *s1, *s2));
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        if(e[j+1].x >= p.x)
-                        {
-                            to_find=find(segments.begin(), segments.end(), (*s1));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s2));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            break;
-                        }
-                    }
-                }
-            }
-            if(s_segs.begin() == s)
-                qDebug("In begin");
-            else
-                qDebug("Not in begin");
-            if(i==0)
-                qDebug("zero");
-            if(i==1)
-                qDebug("one");
-            if(i==2)
-                qDebug("two");
-            if(i==3)
-                qDebug("three");
-            qDebug("pre erase");
-            if(find(s_segs.begin(), s_segs.end(), (*s))!=s_segs.end())
-                qDebug("Norm");
-            else
-                qDebug("Not norm");
-            s_segs.erase(s);
-            qDebug("post erase");
-
-        }
-        else {
-            qDebug("zero FAP");
-            std::set<Segment*>::iterator s1 = where[e[i].id], tih = where[e[i].id];
-            std::set<Segment*>::iterator s2 = where[e[i].id2], tih2 = where[e[i].id2];
-            tih++;
-            std::set<Segment*>::iterator s3 = tih;
-            std::set<Segment*>::iterator s4 = (s2==s_segs.begin()) ? s_segs.end(): --tih2;
-            if (s3 != s_segs.end() && s2 != s_segs.end() && intersect (*s3, *s2)) {
-                Point2d p(find_point(*s3, *s2));
-                if(p.x > e[i].x) {
-                    intersections.push_back(new Intersection(p, *s3, *s2));
-                    qDebug("INN222");
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        if(e[j+1].x >= p.x)
-                        {
-                            to_find=find(segments.begin(), segments.end(), (*s3));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s2));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            break;
-                        }
-                    }
-                }
-            }
-            if (s1 != s_segs.end() && s4 != s_segs.end() && intersect (*s1, *s4)) {
-                Point2d p(find_point(*s1, *s4));
-                if(p.x > e[i].x) {
-                    intersections.push_back(new Intersection(p, *s1, *s4));
-                    qDebug("INN333");
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        if(e[j+1].x >= p.x)
-                        {
-                            to_find=find(segments.begin(), segments.end(), (*s1));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s4));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            break;
-                        }
-                    }
-                }
-            }
-            qDebug("swap was processed");
-//            where[e[i].id] = s2;
-//            where[e[i].id2] = s1;
-//            std::swap((*s1)->p, (*s2)->p);
-//            std::swap((*s1)->q, (*s2)->q);
-        }
-    }
-=======
->>>>>>> .merge_file_8dXI4w
 
 void Area::cleanSegments() {
 
@@ -527,7 +315,7 @@ void Area::saveToFileAreaSlot(QString file) {
 
     fout << mSegments.size() << std::endl;
 
-    for (size_t i = 0; i < mSegments.size(); i++) {
+    for (int i = 0; i < mSegments.size(); i++) {
 
         fout << mSegments[i].p.x << std::endl;
         fout << mSegments[i].p.y << std::endl;
@@ -578,12 +366,8 @@ void Area::undoAreaSlot() {
                               history );
     }
 
-<<<<<<< .merge_file_mG5bBz
-    for (size_t i = 0; i < mSegments.size(); i++) {
-=======
     update();
 }
->>>>>>> .merge_file_8dXI4w
 
 void Area::redoAreaSlot() {
     if (future.size() > 0) {
