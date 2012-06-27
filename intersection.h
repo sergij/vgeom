@@ -229,8 +229,10 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
                 }
                 qDebug("Finished");
             }
-            std::swap(where[e[i].id], where[e[i].id2]);
-            std::swap(s1, s2);
+//            std::swap(where[e[i].id], where[e[i].id2]);
+            where[e[i].id] = s1;
+            where[e[i].id2] = s2;
+
         }
     }
 
