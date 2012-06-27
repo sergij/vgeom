@@ -7,17 +7,17 @@ Generator::Generator(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->numberScroll->setRange (0, 50);
+    ui->numberScroll->setRange (2, 50);
     ui->numberScroll->setSingleStep (1);
     ui->numberScroll->setSliderPosition (10);
 
     ui->numberLabel->setText(QString("10"));
 
-    connect(ui->numberScroll, SIGNAL(valueChanged( int ) ), SLOT(numChanged( int )));
-    connect(ui->ok, SIGNAL(clicked()), this, SLOT(generate()));
+    connect(ui->numberScroll, SIGNAL(valueChanged( int ) ), SLOT(generatePointsGeneratorSlot( int )));
+    connect(ui->ok, SIGNAL(clicked()), this, SLOT(generateGeneratorSlot()));
     connect(ui->ok, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->cancel, SIGNAL(clicked()), this, SLOT(close()));
-    connect(this, SIGNAL(generatePoints(int)), parent, SLOT(numChanged( int )));
+    connect(this, SIGNAL(generatePointsGeneratorSignal(int, bool, bool, bool)), parent, SLOT(generetePointsMainWindowSlot( int, bool, bool, bool )));
 }
 
 Generator::~Generator()
@@ -25,13 +25,13 @@ Generator::~Generator()
     delete ui;
 }
 
-void Generator::numChanged(int num)
+void Generator::generatePointsGeneratorSlot(int num)
 {
     ui->numberLabel->setText(QString::number(num));
 }
 
 
-void Generator::generate() {
-    emit generatePoints(ui->numberScroll->value());
+void Generator::generateGeneratorSlot() {
+    emit generatePointsGeneratorSignal(ui->numberScroll->value(), ui->vert->isChecked(), ui->multi->isChecked(), ui->full->isChecked());
 }
 

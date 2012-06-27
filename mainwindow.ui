@@ -196,6 +196,7 @@
      <height>25</height>
     </rect>
    </property>
+<<<<<<< .merge_file_mJVoqF
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -204,6 +205,34 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+=======
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveResult"/>
+   </widget>
+   <widget class="QMenu" name="menuGeneration">
+    <property name="title">
+     <string>Генерация отрезков</string>
+    </property>
+    <addaction name="actionRandom"/>
+    <addaction name="actionDraw"/>
+    <addaction name="actionStopDraw"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Правка</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuGeneration"/>
+   <addaction name="menuEdit"/>
+>>>>>>> .merge_file_GeSpaC
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -217,6 +246,54 @@
     <bool>false</bool>
    </attribute>
   </widget>
+<<<<<<< .merge_file_mJVoqF
+=======
+  <action name="actionOpen">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Сохранить отрезки</string>
+   </property>
+  </action>
+  <action name="actionRandom">
+   <property name="text">
+    <string>Случайная генерация</string>
+   </property>
+  </action>
+  <action name="actionDraw">
+   <property name="text">
+    <string>Нарисовать отрезки</string>
+   </property>
+  </action>
+  <action name="actionStopDraw">
+   <property name="text">
+    <string>Закончить рисование</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Отменить</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Повторить</string>
+   </property>
+  </action>
+  <action name="actionSaveResult">
+   <property name="text">
+    <string>Сохранить результат</string>
+   </property>
+  </action>
+  <action name="actionCompareResults">
+   <property name="text">
+    <string>Сравнить результаты</string>
+   </property>
+  </action>
+>>>>>>> .merge_file_GeSpaC
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

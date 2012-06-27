@@ -11,27 +11,33 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     explicit MainWindow(QWidget *parent = 0);
 
     ~MainWindow();
-    
+
 private:
 
     Ui::MainWindow *ui;
 
 public slots:
-    void numChanged(int num);
-    void generation();
-    void enableon();
-    void enableof();
-    void load();
-    void save();
+    void generetePointsMainWindowSlot(int num, bool vert, bool multi, bool full);
+    void generationMainWindowSlot();
+    void drawMainWindowSlot();
+    void stopDrawMainWindowSlot();
+    void enableToolsOnMainWindowSlot();
+    void enableToolsOfMainWindowSlot();
+    void loadFromFileMainWindowSlot();
+    void saveToFileMainWindowSlot();
+    void saveResultToFileMainWindowSlot();
 signals:
-    void generetePoints(int num);
-    void loadFromFile(QString file);
-    void saveToFile(QString file);
+    void generetePointsMainWindowSignal(int num, bool vert, bool multi, bool full);
+    void loadFromFileMainWindowSignal(QString file);
+    void saveToFileMainWindowSignal(QString file);
+    void saveResultToFileMainWindowSignal(QString file);
+    void drawMainWindowSignal();
+    void stopDrawMainWindowSignal();
 };
 
 #endif // MAINWINDOW_H
