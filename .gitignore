@@ -10,5 +10,10 @@
 *.lai
 *.la
 *.a
+<<<<<<< HEAD
 *.pro
 *.user
+=======
+*.user
+*.pro
+>>>>>>> olga

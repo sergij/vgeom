@@ -48,7 +48,7 @@
     </property>
     <addaction name="actionRandom"/>
     <addaction name="actionDraw"/>
-    <addaction name="actionStop_Draw"/>
+    <addaction name="actionStopDraw"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -94,7 +94,7 @@
     <string>Нарисовать отрезки</string>
    </property>
   </action>
-  <action name="actionStop_Draw">
+  <action name="actionStopDraw">
    <property name="text">
     <string>Закончить рисование</string>
    </property>
@@ -112,6 +112,11 @@
   <action name="actionSaveResult">
    <property name="text">
     <string>Сохранить результат</string>
+   </property>
+  </action>
+  <action name="actionCompareResults">
+   <property name="text">
+    <string>Сравнить результаты</string>
    </property>
   </action>
  </widget>
