@@ -6,7 +6,7 @@
 #include <fstream>
 #include <set>
 #include <algorithm>
-
+double XxX=0;
 bool compIntersections(Intersection* int1, Intersection* int2) {
     return (int1->p.x < int2->p.x);
 }
@@ -37,29 +37,36 @@ Point2d find_point(const Segment* a, const Segment* b) {
     double b2 = b->p.y - (k2 * b->p.x);
     double x = (b2 - b1) / (k1 - k2);
     double y = (k1 * x) + b1;
+    if(a->p.x==a->q.x) return Point2d(a->p.x, b->get_y(a->p.x));
+    if(b->p.x==b->q.x) return Point2d(b->p.x, a->get_y(b->p.x));
     return Point2d(x, y);
 }
-struct point_f{
-    long double x,y,z;
-};
 
 struct event {
-        double x;
+        double x, y;
         int tp, id, id2;
 
         event() { }
-        event (double x, int tp, int id, int id2=0)
+        event (double x, double y, int tp, int id, int id2=0)
             : x(x), tp(tp), id(id), id2(id2)
         { }
 
         bool operator< (const event & e) const {
-                if (abs (this->x - e.x) > EPS)
-                    return this->x < e.x;
-                return tp > e.tp;
+            if (abs (this->x - e.x) > EPS)
+                return this->x < e.x;
+            if (abs (this->y - e.y) > EPS)
+                return this->y < e.y;
+            return tp > e.tp;
         }
 };
 
 
+struct ltstr
+{
+  bool operator()(const Segment * a, const Segment * b) const {
+      return a->get_y(XxX) < b->get_y(XxX) - EPS;
+  }
+};
 void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &intersections) {
     int n = segments.size();
     intersections.clear();
@@ -82,19 +89,22 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
     }
     std::vector<event> e;
     for (int i=0; i<n; ++i) {
-        e.push_back (event (std::min (segments[i]->p.x, segments[i]->q.x), +1, i));
-        e.push_back (event (std::max (segments[i]->p.x, segments[i]->q.x), -1, i));
+        e.push_back (event (segments[i]->p.x, segments[i]->p.y, +1, i));
+        e.push_back (event (segments[i]->q.x, segments[i]->p.y, -1, i));
     }
-    std::sort(e.begin(), e.end());
-    std::set<Segment*> s_segs;
+    std::stable_sort(e.begin(), e.end());
+    std::set<Segment*, ltstr> s_segs;
     std::vector< std::set<Segment*>::iterator > where;
     std::vector<Segment*>::iterator to_find;
     where.resize (segments.size());
 
     int id2;
     for (size_t i=0; i<e.size(); ++i) {
-        qDebug("Beginning");
+
         int id = e[i].id;
+        XxX = e[i].x;
+
+        std::cout << e[i].tp << std::endl;
         if (e[i].tp == +1) {
             std::set<Segment*>::iterator s1 = s_segs.lower_bound (segments[id]);
             std::set<Segment*>::iterator nxt2 = s_segs.lower_bound (segments[id]);
@@ -103,32 +113,18 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
             if (s1 != s_segs.end() && intersect(*s1, segments[id])){
                 Point2d p(find_point(*s1, segments[id]));
                 intersections.push_back(new Intersection(p, *s1, segments[id]));
-                for(size_t j=i+1;j<e.size() - 1; j++) {
-                    if(e[j+1].x>=p.x)
-                    {
-                        to_find=find(segments.begin(), segments.end(), (*s1));
-                        if(to_find==segments.end())
-                            break;
-                        id2 = to_find - segments.begin();
-                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
-                        break;
-                    }
-                }
+                to_find=find(segments.begin(), segments.end(), (*s1));
+                id2 = to_find - segments.begin();
+                e.push_back(event(p.x, p.y, 0, id2, id));
+                std::stable_sort(e.begin(), e.end());
             }
             if (s2 != s_segs.end() && intersect(*s2, segments[id]) ) {
                 Point2d p(find_point(*s2, segments[id]));
                 intersections.push_back(new Intersection(p, *s2, segments[id]));
-                for(size_t j = i + 1;j<e.size() - 1; j++) {
-                    if(e[j+1].x>=p.x)
-                    {
-                        to_find=find(segments.begin(), segments.end(), (*s2));
-                        if(to_find==segments.end())
-                            break;
-                        id2 = to_find - segments.begin();
-                        e.insert(e.begin() + j, event(p.x, 0, id2, id));
-                        break;
-                    }
-                }
+                to_find=find(segments.begin(), segments.end(), (*s2));
+                id2 = to_find - segments.begin();
+                e.push_back(event(p.x, p.y, 0, id2, id));
+                std::stable_sort(e.begin(), e.end());
             }
             where[id] = s_segs.insert (s1, segments[id]);
         }
@@ -140,41 +136,15 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
             if (s1 != s_segs.end() && s2 != s_segs.end() && intersect (*s1, *s2)) {
                 Point2d p(find_point(*s1, *s2));
                 if(p.x > e[i].x) {
-                    if (p.x < e[e.size()-1].x)
-                        qDebug("fine");
                     intersections.push_back(new Intersection(p, *s1, *s2));
-                    qDebug("INN");
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        qDebug("searching");
-                        if(e[j+1].x >= p.x)
-                        {
-                            if (p.x < e[j+1].x && p.x > e[j].x)
-                                qDebug("VFine");
-                            to_find=find(segments.begin(), segments.end(), (*s1));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s2));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            qDebug("inserting");
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            qDebug("inserted");
-                            break;
-                        }
-                    }
+                    to_find=find(segments.begin(), segments.end(), (*s1));
+                    id = to_find - segments.begin();
+                    to_find=find(segments.begin(), segments.end(), (*s2));
+                    id2 = to_find - segments.begin();
+                    e.push_back(event(p.x, p.y, 0, id, id2));
+                    std::stable_sort(e.begin(), e.end());
                 }
-                qDebug("Finished");
             }
-//            if (s1 != s_segs.end() && tih != s1 && intersect (*s1, *tih)) {
-//                Point2d p(find_point(*s1, *tih));
-//                intersections.push_back(new Intersection(p, *s1, *tih));
-//            }
-//            if (s2 != s_segs.end() && tih != s2 && intersect (*s2, *tih)) {
-//                Point2d p(find_point(*s1, *tih));
-//                intersections.push_back(new Intersection(p, *s2, *tih));
-//            }
             s_segs.erase(s);
         }
         else {
@@ -187,49 +157,26 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
                 Point2d p(find_point(*s3, *s2));
                 if(p.x > e[i].x) {
                     intersections.push_back(new Intersection(p, *s3, *s2));
-                    qDebug("INN222");
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        if(e[j+1].x >= p.x)
-                        {
-                            to_find=find(segments.begin(), segments.end(), (*s3));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s2));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            break;
-                        }
-                    }
+                    to_find=find(segments.begin(), segments.end(), (*s3));
+                    id = to_find - segments.begin();
+                    to_find=find(segments.begin(), segments.end(), (*s2));
+                    id2 = to_find - segments.begin();
+                    e.push_back(event(p.x, p.y, 0, id, id2));
+                    std::stable_sort(e.begin(), e.end());
                 }
-                qDebug("Finished");
             }
             if (s1 != s_segs.end() && s4 != s_segs.end() && intersect (*s1, *s4)) {
                 Point2d p(find_point(*s1, *s4));
                 if(p.x > e[i].x) {
                     intersections.push_back(new Intersection(p, *s1, *s4));
-                    qDebug("INN333");
-                    for(size_t j=i+1;j<e.size() - 1; j++) {
-                        if(e[j+1].x >= p.x)
-                        {
-                            to_find=find(segments.begin(), segments.end(), (*s1));
-                            if(to_find==segments.end())
-                                break;
-                            id = to_find - segments.begin();
-                            to_find=find(segments.begin(), segments.end(), (*s4));
-                            if(to_find==segments.end())
-                                break;
-                            id2 = to_find - segments.begin();
-                            e.insert(e.begin() + j, event(p.x, 0, id, id2));
-                            break;
-                        }
-                    }
+                    to_find=find(segments.begin(), segments.end(), (*s1));
+                    id = to_find - segments.begin();
+                    to_find=find(segments.begin(), segments.end(), (*s4));
+                    id2 = to_find - segments.begin();
+                    e.push_back(event(p.x, p.y, 0, id, id2));
+                    std::stable_sort(e.begin(), e.end());
                 }
-                qDebug("Finished");
             }
-//            std::swap(where[e[i].id], where[e[i].id2]);
             where[e[i].id] = s1;
             where[e[i].id2] = s2;
 

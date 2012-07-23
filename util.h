@@ -31,7 +31,7 @@ struct Segment {
         return ((this->p.x == s->p.x) && (this->p.y == s->p.y) && (this->q.x == s->q.x) && (this->q.y == s->q.y));
     }
 
-    double get_bott(double x) const {
+    double get_y(double x) const {
             if (abs (p.x - q.x) < EPS)  return p.y;
             return p.y + (q.y - p.y) * (x - p.x) / (q.x - p.x);
     }
