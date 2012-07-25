@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'generator.ui'
 **
-** Created: Sun Jul 22 11:02:19 2012
-**      by: Qt User Interface Compiler version 4.7.4
+** Created: Tue Jul 24 23:05:22 2012
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/

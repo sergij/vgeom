@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'generator.h'
 **
-** Created: Sun Jul 22 11:02:33 2012
-**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.4)
+** Created: Tue Jul 24 23:05:33 2012
+**      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,8 +10,8 @@
 #include "generator.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'generator.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 62
-#error "This file was generated using the moc from 4.7.4. It"
+#elif Q_MOC_OUTPUT_REVISION != 63
+#error "This file was generated using the moc from 4.8.1. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -20,7 +20,7 @@ QT_BEGIN_MOC_NAMESPACE
 static const uint qt_meta_data_Generator[] = {
 
  // content:
-       5,       // revision
+       6,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -47,9 +47,27 @@ static const char qt_meta_stringdata_Generator[] = {
     "generateGeneratorSlot()\0"
 };
 
+void Generator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        Q_ASSERT(staticMetaObject.cast(_o));
+        Generator *_t = static_cast<Generator *>(_o);
+        switch (_id) {
+        case 0: _t->generatePointsGeneratorSignal((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
+        case 1: _t->generatePointsGeneratorSlot((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 2: _t->generateGeneratorSlot(); break;
+        default: ;
+        }
+    }
+}
+
+const QMetaObjectExtraData Generator::staticMetaObjectExtraData = {
+    0,  qt_static_metacall 
+};
+
 const QMetaObject Generator::staticMetaObject = {
     { &QDialog::staticMetaObject, qt_meta_stringdata_Generator,
-      qt_meta_data_Generator, 0 }
+      qt_meta_data_Generator, &staticMetaObjectExtraData }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
@@ -75,12 +93,8 @@ int Generator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        switch (_id) {
-        case 0: generatePointsGeneratorSignal((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
-        case 1: generatePointsGeneratorSlot((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 2: generateGeneratorSlot(); break;
-        default: ;
-        }
+        if (_id < 3)
+            qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
     }
     return _id;

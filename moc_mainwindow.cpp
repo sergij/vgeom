@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Sun Jul 22 11:02:32 2012
-**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.4)
+** Created: Tue Jul 24 23:05:32 2012
+**      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,8 +10,8 @@
 #include "mainwindow.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'mainwindow.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 62
-#error "This file was generated using the moc from 4.7.4. It"
+#elif Q_MOC_OUTPUT_REVISION != 63
+#error "This file was generated using the moc from 4.8.1. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -20,7 +20,7 @@ QT_BEGIN_MOC_NAMESPACE
 static const uint qt_meta_data_MainWindow[] = {
 
  // content:
-       5,       // revision
+       6,       // revision
        0,       // classname
        0,    0, // classinfo
       15,   14, // methods
@@ -70,9 +70,39 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "saveResultToFileMainWindowSlot()\0"
 };
 
+void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        Q_ASSERT(staticMetaObject.cast(_o));
+        MainWindow *_t = static_cast<MainWindow *>(_o);
+        switch (_id) {
+        case 0: _t->generetePointsMainWindowSignal((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
+        case 1: _t->loadFromFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 2: _t->saveToFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 3: _t->saveResultToFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 4: _t->drawMainWindowSignal(); break;
+        case 5: _t->stopDrawMainWindowSignal(); break;
+        case 6: _t->generetePointsMainWindowSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
+        case 7: _t->generationMainWindowSlot(); break;
+        case 8: _t->drawMainWindowSlot(); break;
+        case 9: _t->stopDrawMainWindowSlot(); break;
+        case 10: _t->enableToolsOnMainWindowSlot(); break;
+        case 11: _t->enableToolsOfMainWindowSlot(); break;
+        case 12: _t->loadFromFileMainWindowSlot(); break;
+        case 13: _t->saveToFileMainWindowSlot(); break;
+        case 14: _t->saveResultToFileMainWindowSlot(); break;
+        default: ;
+        }
+    }
+}
+
+const QMetaObjectExtraData MainWindow::staticMetaObjectExtraData = {
+    0,  qt_static_metacall 
+};
+
 const QMetaObject MainWindow::staticMetaObject = {
     { &QMainWindow::staticMetaObject, qt_meta_stringdata_MainWindow,
-      qt_meta_data_MainWindow, 0 }
+      qt_meta_data_MainWindow, &staticMetaObjectExtraData }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
@@ -98,24 +128,8 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        switch (_id) {
-        case 0: generetePointsMainWindowSignal((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
-        case 1: loadFromFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 2: saveToFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 3: saveResultToFileMainWindowSignal((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 4: drawMainWindowSignal(); break;
-        case 5: stopDrawMainWindowSignal(); break;
-        case 6: generetePointsMainWindowSlot((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3])),(*reinterpret_cast< bool(*)>(_a[4]))); break;
-        case 7: generationMainWindowSlot(); break;
-        case 8: drawMainWindowSlot(); break;
-        case 9: stopDrawMainWindowSlot(); break;
-        case 10: enableToolsOnMainWindowSlot(); break;
-        case 11: enableToolsOfMainWindowSlot(); break;
-        case 12: loadFromFileMainWindowSlot(); break;
-        case 13: saveToFileMainWindowSlot(); break;
-        case 14: saveResultToFileMainWindowSlot(); break;
-        default: ;
-        }
+        if (_id < 15)
+            qt_static_metacall(this, _c, _id, _a);
         _id -= 15;
     }
     return _id;
