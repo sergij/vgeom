@@ -113,18 +113,9 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
     for (size_t i=0; i<e.size(); ++i) {
 
         int id = e[i].id;
-        XxX = e[i].x;
+        XxX = e[i].x + EPS;
 
         std::stable_sort(ALL(v_segs), cmp);
-
-//        std::cout << "------------" << std::endl;
-//        for(isss=v_segs.begin(); isss!=v_segs.end(); ++isss){
-//            std::cout << (*isss)->get_y(XxX) << " | " ;
-//        }
-//        std::cout << std::endl;
-//        std::cout << "------------" << std::endl;
-
-        std::cout << e[i].tp << std::endl;
 
         if (e[i].tp == +1) {
             std::vector<Segment*>::iterator s_1 = std::lower_bound(v_segs.begin(), v_segs.end(), segments[id], cmp);
@@ -171,9 +162,13 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
             sv = v_segs.erase(sv);
         }
         else {
-            std::vector<Segment*>::iterator s_1 = std::find(ALL(v_segs), segments[e[i].id]), s_3 = s_1+1;
-            std::vector<Segment*>::iterator s_2 = std::find(ALL(v_segs), segments[e[i].id2]);
-            std::vector<Segment*>::iterator s_4 = (s_2==v_segs.begin()) ? v_segs.end(): s_2-1;
+            std::vector<Segment*>::iterator s_1 = std::find(ALL(v_segs), segments[e[i].id2]);
+            std::vector<Segment*>::iterator s_2 = std::find(ALL(v_segs), segments[e[i].id]);
+
+            if((*s_1)->get_y(XxX) < (*s_2)->get_y(XxX)) std::swap(s_1, s_2);
+
+            std::vector<Segment*>::iterator s_3 = s_1 + 1;
+            std::vector<Segment*>::iterator s_4 = (s_2==v_segs.begin()) ? v_segs.end(): s_2 - 1;
 
             if (s_3 != v_segs.end() && s_2 != v_segs.end() && intersect (*s_3, *s_2)) {
                 Point2d p(find_point(*s_3, *s_2));

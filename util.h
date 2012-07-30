@@ -1,6 +1,6 @@
 #ifndef MYUTIL_H
 #define MYUTIL_H
-#define EPS 1E-9
+#define EPS 1E-6
 
 struct Point2d {
     double x;
