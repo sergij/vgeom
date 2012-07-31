@@ -113,7 +113,7 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
     for (size_t i=0; i<e.size(); ++i) {
 
         int id = e[i].id;
-        XxX = e[i].x + EPS;
+        XxX = e[i].x - EPS;
 
         std::stable_sort(ALL(v_segs), cmp);
 
@@ -131,13 +131,15 @@ void intersection(std::vector<Segment*> &segments, std::vector<Intersection*> &i
                     std::stable_sort(e.begin(), e.end());
                 }
             }
-            if (s_2 != v_segs.end() && intersect(*s_2, segments[id]) ) {
-                Point2d p(find_point(*s_2, segments[id]));
-                intersections.push_back(new Intersection(p, *s_2, segments[id]));
-                to_find=find(segments.begin(), segments.end(), (*s_2));
-                id2 = to_find - segments.begin();
-                e.push_back(event(p.x, p.y, 0, id2, id));
-                std::stable_sort(e.begin(), e.end());
+            if (s_2 != v_segs.end()) {
+                if(intersect(*s_2, segments[id]) ) {
+                    Point2d p(find_point(*s_2, segments[id]));
+                    intersections.push_back(new Intersection(p, *s_2, segments[id]));
+                    to_find=find(segments.begin(), segments.end(), (*s_2));
+                    id2 = to_find - segments.begin();
+                    e.push_back(event(p.x, p.y, 0, id2, id));
+                    std::stable_sort(e.begin(), e.end());
+                }
             }
 
             v_segs.push_back(segments[id]);
